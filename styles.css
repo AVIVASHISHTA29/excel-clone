@@ -1,0 +1,18 @@
+body {
+  width: 100vw;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  overflow-x: auto;
+}
+
+th,
+td {
+  border: 1px solid #333;
+  width: 180px;
+}
+
+td:focus {
+  outline: none;
+}
