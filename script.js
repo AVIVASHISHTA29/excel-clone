@@ -26,7 +26,7 @@ const cutBtn = document.getElementById("cut-btn");
 const copyBtn = document.getElementById("copy-btn");
 const pasteBtn = document.getElementById("paste-btn");
 
-const matrix = new Array(rows);
+let matrix = new Array(rows);
 // 100X26
 
 for (let i = 0; i < rows; i++) {
@@ -238,6 +238,7 @@ function readJsonFile(event) {
       try {
         const jsonData = JSON.parse(fileContent);
         console.log("matrix2", jsonData);
+        matrix = jsonData;
         jsonData.forEach((row) => {
           row.forEach((cell) => {
             if (cell.id) {
