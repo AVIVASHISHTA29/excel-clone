@@ -257,3 +257,10 @@ function readJsonFile(event) {
     reader.readAsText(file);
   }
 }
+
+// [
+// {sheet1:matrix1,}
+// {sheet2:matrix2,}
+// ]
+
+// var currentSheet = 2;
