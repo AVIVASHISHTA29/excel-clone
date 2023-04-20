@@ -1,3 +1,7 @@
+// document.getElementById("my-input").addEventListener("input", () => {
+//   console.log(document.getElementById("my-input").value);
+// });
+
 const thead = document.getElementById("table-heading-row");
 const tbody = document.getElementById("table-body");
 const columns = 26;
@@ -21,6 +25,18 @@ const fontFamily = document.getElementById("font-family");
 const cutBtn = document.getElementById("cut-btn");
 const copyBtn = document.getElementById("copy-btn");
 const pasteBtn = document.getElementById("paste-btn");
+
+const matrix = new Array(rows);
+// 100X26
+
+for (let i = 0; i < rows; i++) {
+  matrix[i] = new Array(columns);
+  for (let j = 0; j < columns; j++) {
+    matrix[i][j] = {};
+  }
+}
+
+console.log("Matrix", matrix);
 
 // alphabets.forEach((alphabet) => {
 //   var th = document.createElement("th");
@@ -46,19 +62,24 @@ for (let row = 0; row < rows; row++) {
     td.setAttribute("spellcheck", "false");
     td.setAttribute("id", `${String.fromCharCode(65 + col)}${row + 1}`);
     td.addEventListener("focus", (event) => onFocusFnc(event));
+    td.addEventListener("input", (event) => onInputFnc(event));
     tr.appendChild(td);
   }
   //append the row into the bodyw
   tbody.appendChild(tr);
 }
 
+function onInputFnc(event) {
+  updateJson(event.target);
+}
+
 function onFocusFnc(event) {
   console.log("In focus:", event.target);
   currCell = event.target;
   document.getElementById("current-cell").innerText = event.target.id;
-  // console.log(currCell.style.cssText);
-  // console.log(cssStringToJson(currCell.style.cssText));
-  // console.log(currCell.id);
+  console.log(currCell.style.cssText);
+  console.log(currCell.innerText);
+  console.log(currCell.id);
 }
 
 // event listeners for buttons
@@ -93,12 +114,12 @@ underlineBtn.addEventListener("click", () => {
   updateJson(currCell);
 });
 
-bgColor.addEventListener("change", () => {
+bgColor.addEventListener("input", () => {
   currCell.style.backgroundColor = bgColor.value;
   updateJson(currCell);
 });
 
-textColor.addEventListener("change", () => {
+textColor.addEventListener("input", () => {
   currCell.style.color = textColor.value;
   updateJson(currCell);
 });
@@ -153,49 +174,32 @@ pasteBtn.addEventListener("click", () => {
 
 // get current cells data in this format
 //  {
-//   "bold": false,
-//   "italic": "normal",
-//   "underline": "none",
-//   "fontFamily": "Arial",
-//   "fontSize": "10",
-//   "textAlign": "left"
+// style:"",
+// text:"",
+// id:""
 // }
+
+// [
+//   [{bg},{},{}],
+//   [{},{njh},{}],
+//   [{},{njhu},{}]
+// ]
 
 // save all elements data in a json.
 
-const matrix = new Array(rows);
-
-for (let i = 0; i < rows; i++) {
-  matrix[i] = new Array(columns);
-  for (let j = 0; j < columns; j++) {
-    matrix[i][j] = {}; // Initialize each element with 0 or any default value you prefer
-  }
-}
-
 function updateJson(cell) {
-  let currCellJson = cssStringToJson(cell.style.cssText);
-  currCellJson = { ...currCellJson, text: cell.innerText, id: cell.id };
-  var id = cell.id.split("");
-  var i = id[0].charCodeAt(0) - 65;
-  var j = id[1] - 1;
-  matrix[i][j] = currCellJson;
-  console.log(matrix);
-  // font-weight: bold; font-style: italic; text-decoration: underline; color: rgb(255, 0, 0); background-color: rgb(0, 0, 0); text-align: center; font-size: 16px;
-}
+  var json = {
+    style: cell.style.cssText,
+    text: cell.innerText,
+    id: cell.id,
+  };
+  // update this json in my matrix
+  var id = cell.id.split(""); //A1,A2,A3,A4
 
-function cssStringToJson(cssString) {
-  const json = {};
-  const properties = cssString.split(";");
+  var i = id[1] - 1;
+  var j = id[0].charCodeAt(0) - 65;
 
-  properties.forEach((property) => {
-    const [key, value] = property.split(":");
-
-    if (key.trim() && value.trim()) {
-      json[key.trim()] = value.trim();
-    }
-  });
-
-  return json;
+  matrix[i][j] = json;
 }
 
 function downloadJson() {
@@ -229,20 +233,17 @@ function readJsonFile(event) {
     reader.onload = function (e) {
       const fileContent = e.target.result;
 
+      // {id,style,text}
       // Parse the JSON file content and process the data
       try {
         const jsonData = JSON.parse(fileContent);
-        console.log(jsonData);
+        console.log("matrix2", jsonData);
         jsonData.forEach((row) => {
           row.forEach((cell) => {
             if (cell.id) {
               var myCell = document.getElementById(cell.id);
               myCell.innerText = cell.text;
-              delete cell.text;
-              delete cell.id;
-              Object.keys(cell).map((key) => {
-                myCell.style[key] = cell[key];
-              });
+              myCell.style.cssText = cell.style;
             }
           });
         });
